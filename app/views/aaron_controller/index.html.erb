@@ -103,11 +103,25 @@
         // for moves and mouseups while dragging
         var handler = {
           clicked:function(e){
+            var sys = arbor.ParticleSystem()
             var pos = $(canvas).offset();
             _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
             dragged = particleSystem.nearest(_mouseP);
             
             console.log(dragged.node.data.label);
+            $.get("aaron_controller/index",function(data,status){
+              for (var i = 0; i < data.length; i++) { 
+                  console.log("Ref: " + i + " " + data[i]);
+                  // sys.addNode('data[i]', {'color':'orange','shape':'dot','label':data[i]});
+                  // sys.addEdge(dragged.node,'data[i]' );
+                  // sys.addEdge('root',i.toString());
+                  //                   sys.addNode(data[i]);
+                  //sys.renderer = Renderer("#viewport") // our newly created renderer will have its .init() method called shortly by sys...
+                  console.log(sys);
+                  sys.addNode('data[i]', {'color':'orange','shape':'dot','label':data[i]});
+                  sys.addEdge(dragged.node,data[i])
+              }
+            });
 
             if (dragged && dragged.node !== null){
               // while we're dragging, don't let physics move the node
@@ -153,12 +167,12 @@
   }    
 
   $(document).ready(function(){
-    var sys = arbor.ParticleSystem(0, 0, 0.5) // create the system with sensible repulsion/stiffness/friction
+    sys = arbor.ParticleSystem(100, 100, 0.5) // create the system with sensible repulsion/stiffness/friction
     sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
     sys.renderer = Renderer("#viewport") // our newly created renderer will have its .init() method called shortly by sys...
 
     // add some nodes to the graph and watch it go...
-    sys.addNode('root', {'color':'orange','shape':'dot','label':'<%= @current_object.object_id %>'})
+    sys.addNode('root', {'color':'orange','shape':'dot','label':'<%= @current_object.object_id %>'});
     
 
     // or, equivalently:
@@ -181,4 +195,16 @@
 })(this.jQuery)
 
 </script>
+
+<script>
+$(document).ready(function(){
+  $("button").click(function(){
+    $.get("aaron_controller/index",function(data,status){
+      alert("Data: " + data + "\nStatus: " + status);
+    });
+  });
+});
+</script>
+<button>Send an HTTP GET request to a page and get the result back</button>
+
 Current Object <%=@current_object%>

@@ -8,7 +8,7 @@ class AaronControllerController < ApplicationController
     @references = ObjectSpace.reachable_objects_from(@current_object)
     respond_to do |format|
     format.json do
-      render :json => references.map{ |r| r.object_id }
+      render :json => @references.map{ |r| r.object_id }
     end
     format.html 
     end
