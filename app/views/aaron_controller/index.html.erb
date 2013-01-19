@@ -1,20 +1,6 @@
-<canvas id="viewport" width="800" height="600"></canvas>
+<canvas id="viewport" width="1600" height="800"></canvas>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
 <script>
-// sys = arbor.ParticleSystem();
-// node = sys.addNode("mynode", {mass:2, myColor:"goldenrod"});
-// console.log(node.p.x, node.p.y);
-// 
-// 
-// arbor.ParticleSystem({friction:.5, stiffness:600, repulsion:1000})
-// 
-// var myRenderer = {
-//   init:  function(system){ console.log("starting",system) },
-//   redraw:function(){ console.log("redraw") }
-// }
-// var sys = arbor.ParticleSystem()
-// sys.renderer = myRenderer
-
 (function($){
 
   var Renderer = function(canvas){
@@ -103,26 +89,26 @@
         // for moves and mouseups while dragging
         var handler = {
           clicked:function(e){
-            var sys = arbor.ParticleSystem()
             var pos = $(canvas).offset();
             _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
             dragged = particleSystem.nearest(_mouseP);
-            
+            //on click we want to send a json request and add nodes
             console.log(dragged.node.data.label);
-            $.get("aaron_controller/index",function(data,status){
+            ajax_url = 'index';
+            if(root_node != dragged.node){
+                ajax_url +='/' + dragged.node.data.label;
+            }
+            console.log("ajax output: " + ajax_url)
+            $.get(ajax_url,function(data,status){
               for (var i = 0; i < data.length; i++) { 
                   console.log("Ref: " + i + " " + data[i]);
-                  // sys.addNode('data[i]', {'color':'orange','shape':'dot','label':data[i]});
-                  // sys.addEdge(dragged.node,'data[i]' );
-                  // sys.addEdge('root',i.toString());
-                  //                   sys.addNode(data[i]);
-                  //sys.renderer = Renderer("#viewport") // our newly created renderer will have its .init() method called shortly by sys...
-                  console.log(sys);
-                  sys.addNode('data[i]', {'color':'orange','shape':'dot','label':data[i]});
-                  sys.addEdge(dragged.node,data[i])
-              }
+                  var new_node = particleSystem.addNode(data[i], {'color':'orange','shape':'dot','label':data[i]});
+                   var edge = particleSystem.addEdge(dragged.node,new_node);
+                  console.log("These are the nodes");
+                                }
             });
-
+            
+            
             if (dragged && dragged.node !== null){
               // while we're dragging, don't let physics move the node
               dragged.node.fixed = true
@@ -167,12 +153,14 @@
   }    
 
   $(document).ready(function(){
-    sys = arbor.ParticleSystem(100, 100, 0.5) // create the system with sensible repulsion/stiffness/friction
-    sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
+    var sys = arbor.ParticleSystem(0, 1000, 0.1)  // create the system with sensible repulsion/stiffness/friction
+    sys.parameters({gravity:true}) // use center-gravity to make the graph settle nicely (ymmv)
     sys.renderer = Renderer("#viewport") // our newly created renderer will have its .init() method called shortly by sys...
+    sys.parameters({repulsion:600})
 
     // add some nodes to the graph and watch it go...
-    sys.addNode('root', {'color':'orange','shape':'dot','label':'<%= @current_object.object_id %>'});
+    root_node = sys.addNode('root', {'color':'orange','shape':'dot','label':'<%= @current_object.object_id %>'});
+    root_node = sys.addNode('test', {'color':'orange','shape':'dot','label':'test'});
     
 
     // or, equivalently:
@@ -195,16 +183,5 @@
 })(this.jQuery)
 
 </script>
-
-<script>
-$(document).ready(function(){
-  $("button").click(function(){
-    $.get("aaron_controller/index",function(data,status){
-      alert("Data: " + data + "\nStatus: " + status);
-    });
-  });
-});
-</script>
-<button>Send an HTTP GET request to a page and get the result back</button>
 
 Current Object <%=@current_object%>

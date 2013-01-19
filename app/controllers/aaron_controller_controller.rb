@@ -4,7 +4,7 @@ require 'foo'
 class AaronControllerController < ApplicationController
   
   def index
-    @current_object = params[:id] ? ObjectSpace._id2ref(id) : Foo::OBJECT
+    @current_object = params[:id] ? ObjectSpace._id2ref(params[:id].to_i) : Foo::OBJECT
     @references = ObjectSpace.reachable_objects_from(@current_object)
     respond_to do |format|
     format.json do
