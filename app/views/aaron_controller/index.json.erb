@@ -1,0 +1,6 @@
+<%- @people.each do |p| %>
+   {
+     "id": "<%=p.id %>",
+     "location": "<%= p.location %>"
+   },
+<% end %>
