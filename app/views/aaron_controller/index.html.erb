@@ -74,8 +74,8 @@
           // pt:   {x:#, y:#}  node position in screen coords
 
           // draw a rectangle centered at pt
-          var w = 30
-          ctx.fillStyle = (node.data.alone) ? "orange" : "black"
+          var w = 40
+          ctx.fillStyle = (node.data.label) ? "orange" : "black"
           ctx.fillRect(pt.x-w/2, pt.y-w/2, w,w)
           
           var label = node.data.label  ? node.data.label : "yeah";
@@ -106,6 +106,8 @@
             var pos = $(canvas).offset();
             _mouseP = arbor.Point(e.pageX-pos.left, e.pageY-pos.top)
             dragged = particleSystem.nearest(_mouseP);
+            
+            console.log(dragged.node.data.label);
 
             if (dragged && dragged.node !== null){
               // while we're dragging, don't let physics move the node
@@ -151,7 +153,7 @@
   }    
 
   $(document).ready(function(){
-    var sys = arbor.ParticleSystem(1000, 600, 0.5) // create the system with sensible repulsion/stiffness/friction
+    var sys = arbor.ParticleSystem(0, 0, 0.5) // create the system with sensible repulsion/stiffness/friction
     sys.parameters({gravity:false}) // use center-gravity to make the graph settle nicely (ymmv)
     sys.renderer = Renderer("#viewport") // our newly created renderer will have its .init() method called shortly by sys...
 
